@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>02100 Korean: 100 Day Challenge</title>
+    <!-- 폰트 설정: Pretendard(KO), M PLUS Rounded 1c(JA), ZCOOL KuaiLe(ZH) -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary-navy: #1a2a44;
+            --primary-light-navy: #2c3e50;
+            --accent-yellow: #ffdd00;
+            --grape-color: #8e44ad;
+            --bg-color: #f8fafd;
+            --white: #ffffff;
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            margin: 0;
+            background: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: var(--white);
+            min-height: 100vh;
+            padding-bottom: 60px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        /* 비디오 영역 고정 */
+        .video-box {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .video-box iframe { width: 100%; height: 100%; border: none; }
+
+        .content { padding: 24px; box-sizing: border-box; }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .brand-logo {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--primary-navy);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .brand-logo span { color: var(--grape-color); }
+
+        /* 버튼 디자인 통일 */
+        .action-row { 
+            display: flex; 
+            gap: 12px; 
+            margin-bottom: 12px; 
+            align-items: stretch; 
+        }
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            text-decoration: none;
+            padding: 12px;
+            font-size: 0.95rem;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .btn-navy { background: var(--primary-navy); color: var(--white); flex: 1.8; }
+        .btn-yellow { background: var(--accent-yellow); color: var(--primary-navy); flex: 1.4; padding: 12px 5px; }
+
+        .btn-emoji-large {
+            font-size: 2.4rem;
+            margin-right: 4px; 
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .support-text {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary-navy);
+            text-align: left;
+            margin-bottom: 24px;
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            line-height: 1.4;
+        }
+        .coffee-icon { font-size: 2.2rem; flex-shrink: 0; } 
+
+        /* 스탬프 판 */
+        .grape-section {
+            display: none;
+            background: #fdfaff;
+            padding: 20px 14px 14px 14px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+            border: 2px solid #ecdff5;
+            position: relative;
+            animation: fadeIn 0.4s ease-out;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .grape-icon-badge {
+            position: absolute;
+            top: -22px;
+            left: 10px;
+            font-size: 44px;
+            z-index: 10;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .grape-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--grape-color);
+            padding-left: 55px;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--grape-color);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .grape-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 4px;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 2px;
+        }
+        .grape {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: var(--white);
+            border-radius: 50%;
+            border: 1.5px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            color: #ccc;
+            font-weight: 800;
+            transition: var(--transition);
+            box-sizing: border-box;
+        }
+        .grape.filled {
+            background: var(--grape-color);
+            border-color: var(--grape-color);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .close-board-btn {
+            display: block;
+            margin: 12px auto 0;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            text-decoration: underline;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 2px solid #edf2f7;
+            font-size: 1rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: var(--transition);
+            background: #fcfdfe;
+            margin-bottom: 12px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--primary-navy);
+            color: var(--white);
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 0px #0d1624;
+            margin-bottom: 15px;
+        }
+        .submit-btn:active { transform: translateY(3px); box-shadow: 0 1px 0px #0d1624; }
+
+        .feedback-section {
+            background: var(--primary-navy);
+            padding: 30px 20px;
+            border-radius: 32px 32px 0 0;
+            margin-top: 40px;
+            color: white;
+        }
+
+        .padlet-container {
+            width: 100%;
+            height: 360px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: white;
+            border: 4px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .verify-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--accent-yellow);
+            color: var(--primary-navy);
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 0px #e6c600;
+        }
+
+        /* 팝업 모달 스타일 */
+        #stamp-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(8px);
+        }
+        .stamp-card {
+            background: white;
+            padding: 40px 24px;
+            border-radius: 40px;
+            text-align: center;
+            width: 100%;
+            max-width: 440px; 
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            box-sizing: border-box;
+        }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .illustration-container {
+            width: 100%;
+            min-height: 240px; 
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 15px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .big-encourage-text {
+            font-size: 2.2rem;
+            font-weight: 900;
+            line-height: 1.4;
+            color: var(--primary-navy);
+            text-wrap: balance;
+            word-break: break-word;
+            background: linear-gradient(135deg, var(--primary-navy) 0%, var(--grape-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textAppear 0.8s ease-out forwards;
+            max-width: 100%;
+        }
+
+        .lang-ja { font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800; font-size: 2rem; }
+        .lang-zh { font-family: 'ZCOOL KuaiLe', cursive; font-size: 2.4rem; letter-spacing: 1px; }
+
+        @keyframes textAppear { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .fancy-trophy-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .fancy-trophy-svg {
+            width: 280px;
+            height: 280px;
+            filter: drop-shadow(0 15px 35px rgba(255, 215, 0, 0.5));
+            animation: trophyActive 2s infinite ease-in-out;
+        }
+        @keyframes trophyActive { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-15px) scale(1.05); } }
+
+        .custom-alert {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            z-index: 3000;
+            font-size: 0.95rem;
+            animation: slideDown 0.3s forwards;
+            max-width: 85%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
+    </style>
+</head>
+<body>
+
+<div id="custom-alert" class="custom-alert"></div>
+
+<div id="stamp-overlay">
+    <div class="stamp-card">
+        <div id="growth-illustration" class="illustration-container"></div>
+        <h2 style="color: var(--grape-color); margin: 0; font-weight: 800; font-size: 1.8rem;" id="stamp-text">참 잘했어요!</h2>
+        <button id="close-btn-text" class="btn btn-navy" style="width: 100%; padding: 18px; font-size: 1.1rem; margin-top: 20px;" onclick="closeStamp()">확인</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="video-box">
+        <iframe id="mainPlayer" src="https://www.youtube.com/embed/videoseries?list=PLdNKi3Jkq1kmbPOQuexdPMYDxvrkfnWha" allowfullscreen></iframe>
+    </div>
+    
+    <div class="content">
+        <div class="brand-header">
+            <div class="brand-logo">02100<span>Korean</span></div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">100 Day Challenge</div>
+        </div>
+
+        <div class="action-row">
+            <a href="https://www.buymeacoffee.com/02100korean/e/387205" target="_blank" class="btn btn-navy">📚 FREE E-Book & 후원하기</a>
+            <button id="stamp-btn-text" class="btn btn-yellow" onclick="toggleGrapeBoard()">
+                <span class="btn-emoji-large">🍇</span> 100 Day Challenge
+            </button>
+        </div>
+        
+        <p id="support-lang" class="support-text"></p>
+
+        <div class="grape-section" id="grape-section">
+            <div class="grape-icon-badge">🍇</div>
+            <div class="grape-header">
+                <span id="board-label">My 100 Day Progress</span>
+                <span id="progress-text">0 / 100</span>
+            </div>
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar-fill"></div>
+            </div>
+            <div class="grape-grid" id="grape-grid"></div>
+            <button class="close-board-btn" onclick="toggleGrapeBoard()">[ 닫기 ]</button>
+        </div>
+
+        <select id="grammarSelect" onchange="updateVideo()">
+            <option value="-1">--- Select Lesson ---</option>
+            <option value="review">★ Review: All 100 Patterns</option>
+        </select>
+        <input type="text" id="studentName" placeholder="Name">
+        <input type="text" id="sentence" placeholder="Your Sentence">
+
+        <button id="submit-btn-text" class="submit-btn" onclick="copyAndGuide()">문장 복사 및 게시판으로 이동</button>
+    </div>
+
+    <div id="feedback-area" class="feedback-section">
+        <div style="font-weight:800; margin-bottom:15px; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+            📝 Padlet Feedback Board
+        </div>
+        <div class="padlet-container">
+            <iframe src="https://padlet.com/embed/u36tqbh3gtxeuciw" frameborder="0" width="100%" height="100%"></iframe>
+        </div>
+        <button id="verify-btn-text" class="verify-btn" onclick="completeAndStamp()">✨ 게시 완료! 도장 받기</button>
+    </div>
+</div>
+
+<script>
+    const translations = {
+        ko: { 
+            alert: "학습할 문법을 먼저 선택해 볼까요? 😊", 
+            support: "<span class='coffee-icon'>☕</span> 여러분의 후원은 더 좋은 한국어 학습 자료를 만드는 데 큰 힘이 됩니다.", 
+            stamp: "참 잘했어요!", 
+            nameErr: "성함을 입력해주세요!", 
+            sentErr: "공부한 문장을 적어주세요!", 
+            copySuccess: "✅ 문장이 복사되었습니다!",
+            verifyBtn: "✨ 게시 완료! 도장 받기",
+            praise: "오늘의 도전을 멋지게 성공하셨습니다!",
+            close: "확인",
+            submitBtn: "문장 복사 및 게시판으로 이동",
+            milestone1: "100일의 한국어 공부를 시작했네요! 응원합니다!!!",
+            milestone5: "벌써 5%나 공부했어요! 재미있지요?",
+            milestone15: "매일 연습하면 한국어 실력이 좋아질 거예요! 응원합니다! 파이팅!!!",
+            milestone30: "벌써 30%를 달성했어요. 조금 더 노력하세요!",
+            milestone50: "벌써 반이나 공부했어요! 이제 반밖에 안 남았어요. 파이팅!",
+            milestone75: "우와~ 벌써 75%나 공부했어요! 이제 얼마 안 남았네요!",
+            milestone90: "조금만 더! 100개가 코앞에 있어요!",
+            milestone100: "드디어 완료! 노력한 만큼 한국어 실력이 많이 쌓였지요? 축하합니다!",
+            completeTitle: "축하합니다! 완주 성공!"
+        },
+        en: { 
+            alert: "Please select a grammar pattern first! 😊", 
+            support: "<span class='coffee-icon'>☕</span> Your support helps me create more quality Korean study materials!", 
+            stamp: "Great Job!", 
+            nameErr: "Please enter your name!", 
+            sentErr: "Please write your sentence!", 
+            copySuccess: "✅ Sentence copied!",
+            verifyBtn: "✨ Posted! Get Stamp",
+            praise: "You successfully completed today's challenge!",
+            close: "Confirm",
+            submitBtn: "Copy & Go to Board",
+            milestone1: "You've started 100 days of Korean! I'm rooting for you!!!",
+            milestone5: "5% done already! Isn't it fun?",
+            milestone15: "Keep practicing daily and your Korean will improve! Fighting!!!",
+            milestone30: "30% reached! Keep up the good work!",
+            milestone50: "Halfway there! Just 50% more to go. Fighting!",
+            milestone75: "Wow, 75% already! Not much left now!",
+            milestone90: "Just a little more! 100 is right around the corner!",
+            milestone100: "Finally completed! Your Korean must have improved so much. Congrats!",
+            completeTitle: "Congratulations! Finished!"
+        },
+        es: { 
+            alert: "¡Selecciona una gramática primero! 😊", 
+            support: "<span class='coffee-icon'>☕</span> ¡Tu apoyo me ayuda a crear materiales de calidad!", 
+            stamp: "¡Buen trabajo!", 
+            nameErr: "¡Tu nombre, por favor!", 
+            sentErr: "¡Escribe tu frase!", 
+            copySuccess: "✅ ¡Copiado!",
+            verifyBtn: "✨ ¡Publicado! Sellar",
+            praise: "¡Reto conseguido!",
+            close: "Cerrar",
+            submitBtn: "Copiar e ir al tablón",
+            milestone1: "¡Has empezado 100 días de coreano! ¡Te apoyo!",
+            milestone5: "¡Ya llevas el 5%! ¿Divertido?",
+            milestone15: "¡Sigue así y mejorarás mucho! ¡Ánimo!",
+            milestone30: "¡30% completado! ¡Sigue esforzándote!",
+            milestone50: "¡A mitad de camino! ¡Tú puedes!",
+            milestone75: "¡75%! Ya casi estás ahí",
+            milestone90: "¡Solo un poco más! El 100 está cerca",
+            milestone100: "¡Felicidades! Lo has logrado",
+            completeTitle: "¡Felicidades!"
+        },
+        ja: { 
+            alert: "文법을 選택해 주세요! 😊", 
+            support: "<span class='coffee-icon'>☕</span> 応援ありがとうございます！より良い学習資料を作ります。", 
+            stamp: "大変よくできました！", 
+            nameErr: "お名前を入力してください！", 
+            sentErr: "文章を入力してください！", 
+            copySuccess: "✅ 文章가 복사되었습니다!",
+            verifyBtn: "✨ 投稿完了! スタンプをもらう",
+            praise: "チャレンジ成功です！",
+            close: "確認",
+            submitBtn: "コピーして掲示판へ移動",
+            milestone1: "100日の韓国語学習が始まりましたね！応援しています！",
+            milestone5: "もう5%도 勉強しましたね！楽しいですか？",
+            milestone15: "毎日練習すれば上手になりますよ！ファイト！",
+            milestone30: "30%達成！もう少し頑張りましょう！",
+            milestone50: "いよいよ半分です！ファイト！",
+            milestone75: "すごい！75%です！あと少し！",
+            milestone90: "100個まであと一歩です！",
+            milestone100: "ついに完了！おめでとうございます！",
+            completeTitle: "おめでとうございます！"
+        },
+        zh: { 
+            alert: "请先选择语法！ 😊", 
+            support: "<span class='coffee-icon'>☕</span> 您的支持是我制作更多优质资料的动力！", 
+            stamp: "太棒了！", 
+            nameErr: "请输入姓名！", 
+            sentErr: "请写下句子！", 
+            copySuccess: "✅ 句子已复制！",
+            verifyBtn: "✨ 发布完成！获取印章",
+            praise: "挑战成功！",
+            close: "确认",
+            submitBtn: "复制并前往留言板",
+            milestone1: "开启100天韩语挑战！冲鸭！",
+            milestone5: "已经学了5%啦！感觉怎么样？",
+            milestone15: "坚持练习，韩语会越来越好的！加油鸭！",
+            milestone30: "30%达成！离目标更近一步啦！",
+            milestone50: "已经过半了！剩下的50%也要加油哦！",
+            milestone75: "哇，75%了！胜利就在前方！",
+            milestone90: "最后冲刺！满分通关就在眼前！",
+            milestone100: "撒花！你真的太牛了！恭喜圆满成功！",
+            completeTitle: "恭喜达成！"
+        },
+        fr: { 
+            alert: "Choisissez une grammaire ! 😊", 
+            support: "<span class='coffee-icon'>☕</span> Votre soutien m'aide énormément !", 
+            stamp: "Bravo !", 
+            nameErr: "Nom requis !", 
+            sentErr: "Écrivez votre phrase !", 
+            copySuccess: "✅ Copié !",
+            verifyBtn: "✨ Publié ! Obtenir le timbre",
+            praise: "Défi réussi !",
+            close: "Fermer",
+            submitBtn: "Copier et aller au tableau",
+            milestone1: "100 jours de coréen commencent ! Bravo !",
+            milestone5: "Déjà 5 % ! C'est amusant ?",
+            milestone15: "Continuez ainsi et vous progresserez !",
+            milestone30: "30 % atteints ! Continuez !",
+            milestone50: "Déjà la moitié ! Courage !",
+            milestone75: "75 % ! Bientôt fini !",
+            milestone90: "Presque là ! Encore un peu !",
+            milestone100: "Félicitations ! Vous avez fini !",
+            completeTitle: "Félicitations !"
+        },
+        de: { 
+            alert: "Wähle eine Grammatik! 😊", 
+            support: "<span class='coffee-icon'>☕</span> Danke für deine Unterstützung!", 
+            stamp: "Gut gemacht!", 
+            nameErr: "Name eingeben!", 
+            sentErr: "Satz schreiben!", 
+            copySuccess: "✅ Kopiert!",
+            verifyBtn: "✨ Gepostet! Stempel holen",
+            praise: "Super gemacht!",
+            close: "Schließen",
+            submitBtn: "Kopieren & zum Board",
+            milestone1: "100 Tage Koreanisch starten! Viel Erfolg!",
+            milestone5: "Schon 5 %! Macht es Spaß?",
+            milestone15: "Übe täglich für Fortschritte !",
+            milestone30: "30 % erreicht! Bleib dran!",
+            milestone50: "Halbzeit! Du schaffst das!",
+            milestone75: "75 % ! Fast am Ziel!",
+            milestone90: "Fast 100! Nur noch ein Stück!",
+            milestone100: "Glückwunsch! Du hast es geschafft!",
+            completeTitle: "Glückwunsch!"
+        },
+        it: { 
+            alert: "Scegli una grammatica! 😊", 
+            support: "<span class='coffee-icon'>☕</span> Grazie per il tuo supporto!", 
+            stamp: "Ottimo lavoro!", 
+            nameErr: "Inserisci il nome!", 
+            sentErr: "Scrivi la frase!", 
+            copySuccess: "✅ Copiato!",
+            verifyBtn: "✨ Pubblicato! Timbro",
+            praise: "Sfida completata!",
+            close: "Chiudi",
+            submitBtn: "Copia e vai alla bacheca",
+            milestone1: "Iniziati 100 giorni di coreano! Forza!",
+            milestone5: "Già il 5%! Divertente?",
+            milestone15: "Pratica ogni giorno e migliorerai !",
+            milestone30: "30% raggiunto! Continua così!",
+            milestone50: "Metà strada! Forza!",
+            milestone75: "75%! Manca poco!",
+            milestone90: "Quasi 100! Dai!",
+            milestone100: "Complimenti! Hai finito!",
+            completeTitle: "Complimenti!"
+        },
+        ru: { 
+            alert: "Сначала выбери грамматику! 😊", 
+            support: "<span class='coffee-icon'>☕</span> Ваша поддержка очень важна!", 
+            stamp: "Молодец!", 
+            nameErr: "Введите имя!", 
+            sentErr: "Напишите предложение!", 
+            copySuccess: "✅ Скопировано!",
+            verifyBtn: "✨ Готово! Получить печать",
+            praise: "Испытание пройдено!",
+            close: "Закрыть",
+            submitBtn: "Копировать и перейти",
+            milestone1: "Начались 100 дней корейского! Удачи!",
+            milestone5: "Уже 5%! Тебе нравится?",
+            milestone15: "Практикуйся и всё получится !",
+            milestone30: "30% пройдено! Так держать!",
+            milestone50: "Половина пути! Файтинг!",
+            milestone75: "75%! Осталось немного!",
+            milestone90: "Почти 100! Еще чуть-чуть!",
+            milestone100: "Поздравляю! Ты справился!",
+            completeTitle: "Поздравляю!"
+        },
+        ar: { 
+            alert: "اختر القواعد أولاً! 😊", 
+            support: "<span class='coffee-icon'>☕</span> دعمكم يساعدنا كثيراً!", 
+            stamp: "عمل رائع!", 
+            nameErr: "أدخل الاسم!", 
+            sentErr: "اكتب جملة!", 
+            copySuccess: "✅ تم النسخ!",
+            verifyBtn: "✨ تم النشر! احصل على الختم",
+            praise: "مبروك النجاح!",
+            close: "إغلاق",
+            submitBtn: "نسخ والانتقال للوحة",
+            milestone1: "بدأت 100 يوم من الكورية! بالتوفيق!",
+            milestone5: "وصلت لـ 5%! هل هي ممتعة؟",
+            milestone15: "تدرب يومياً وستتحسن لغتك !",
+            milestone30: "30% تم الإنجاز! استمر!",
+            milestone50: "منتصف الطريق! بالتوفيق!",
+            milestone75: "75% أنجزت! اقتربت النهاية!",
+            milestone90: "اقتربت من الـ 100! القليل فقط!",
+            milestone100: "مبروك! لقد أتممت التحدي!",
+            completeTitle: "مبروك!"
+        },
+        th: { 
+            alert: "เลือกไวยากรณ์ก่อนนะครับ! 😊", 
+            support: "<span class='coffee-icon'>☕</span> การสนับสนุนของคุณช่วยเราได้มาก!", 
+            stamp: "ยอดเยี่ยม!", 
+            nameErr: "ใส่ชื่อด้วยครับ!", 
+            sentErr: "เขียนประโยคด้วยครับ!", 
+            copySuccess: "✅ คัดลอกแล้ว!",
+            verifyBtn: "✨ โพสต์แล้ว! รับตราประทับ",
+            praise: "สำเร็จแล้ว!",
+            close: "ตกลง",
+            submitBtn: "คัดลอกและไปที่บอร์ด",
+            milestone1: "เริ่ม 100 วันเรียนเกาหลีแล้ว! สู้ๆ นะครับ!",
+            milestone5: "5% แล้วนะ! สนุกไหมครับ?",
+            milestone15: "ฝึกทุกวันจะเก่งขึ้นแน่นอน สู้ๆ!",
+            milestone30: "30% แล้ว พยายามอีกนิด!",
+            milestone50: "ครึ่งทางแล้ว สู้ๆ นะ!",
+            milestone75: "75% แล้ว อีกนิดเดียว!",
+            milestone90: "ใกล้ 100 แล้ว สู้ต่อไป!",
+            milestone100: "ยินดีด้วยครับ! คุณทำสำเร็จแล้ว!",
+            completeTitle: "ยินดีด้วยครับ!"
+        },
+        vi: { 
+            alert: "Chọn ngữ pháp trước nhé! 😊", 
+            support: "<span class='coffee-icon'>☕</span> Sự ủng hộ của bạn là động lực lớn!", 
+            stamp: "Làm tốt lắm!", 
+            nameErr: "Nhập tên nhé!", 
+            sentErr: "Viết câu nhé!", 
+            copySuccess: "✅ Đã chép!",
+            verifyBtn: "✨ Đã đăng! Nhận dấu",
+            praise: "Thử thách thành công!",
+            close: "Đóng",
+            submitBtn: "Chép và đến bảng",
+            milestone1: "Đã bắt đầu 100 ngày học tiếng Hàn! Cố lên!",
+            milestone5: "Đã được 5% rồi! Thấy vui không?",
+            milestone15: "Luyện tập mỗi ngày sẽ giỏi hơn thôi!",
+            milestone30: "30% rồi! Cố gắng thêm chút nữa!",
+            milestone50: "Nửa chặng đường rồi! Cố lên!",
+            milestone75: "75% rồi! Sắp xong rồi!",
+            milestone90: "Gần được 100 rồi! Cố lên!",
+            milestone100: "Chúc mừng! Bạn đã hoàn thành!",
+            completeTitle: "Chúc mừng!"
+        },
+        id: { 
+            alert: "Pilih tata bahasa dulu! 😊", 
+            support: "<span class='coffee-icon'>☕</span> Dukungan Anda sangat berarti!", 
+            stamp: "Bagus sekali!", 
+            nameErr: "Masukkan nama!", 
+            sentErr: "Tulis kalimat!", 
+            copySuccess: "✅ Berhasil disalin!",
+            verifyBtn: "✨ Terbit! Ambil Stempel",
+            praise: "Berhasil hari ini!",
+            close: "Tutup",
+            submitBtn: "Salin & ke Papan",
+            milestone1: "Mulai 100 hari belajar bahasa Korea! Semangat!",
+            milestone5: "Sudah 5%! Seru, kan?",
+            milestone15: "Berlatih tiap hari pasti makin mahir!",
+            milestone30: "30% tercapai! Terus semangat!",
+            milestone50: "Setengah jalan! Semangat!",
+            milestone75: "75%! Sebentar lagi!",
+            milestone90: "Hampir 100! Sedikit lagi!",
+            milestone100: "Selamat! Anda berhasil!",
+            completeTitle: "Selamat!"
+        },
+        hi: { 
+            alert: "व्याकरण चुनें! 😊", 
+            support: "<span class='coffee-icon'>☕</span> आपका समर्थन हमें प्रेरित करता है!", 
+            stamp: "बहुत बढ़िया!", 
+            nameErr: "नाम लिखें!", 
+            sentErr: "वाक्य लिखें!", 
+            copySuccess: "✅ कॉपी हो गया!",
+            verifyBtn: "✨ पोस्ट किया! मुहर लें",
+            praise: "오늘 성공했습니다!",
+            close: "बंद करें",
+            submitBtn: "कॉपी करें 및 보드로 이동",
+            milestone1: "100 दिन की कोरियाई पढ़ाई शुरू! शुभकामनाएँ!",
+            milestone5: "5% हो गया! मज़ा आ रहा है?",
+            milestone15: "हर दिन अभ्यास करें और सुधार होगा!",
+            milestone30: "30% पूरा! और मेहनत करें!",
+            milestone50: "आधा रास्ता! और मेहनत करें!",
+            milestone75: "75%! बस थोड़ा सा और!",
+            milestone90: "लग लगभग 100! लगे रहें!",
+            milestone100: "बधाई हो! आपने कर दिखाया!",
+            completeTitle: "बधाई हो!"
+        },
+        uz: { 
+            alert: "Grammatikani tanlang! 😊", 
+            support: "<span class='coffee-icon'>☕</span> Qo'llab-quvvatlaganingiz uchun rahmat!", 
+            stamp: "Balli!", 
+            nameErr: "Ismni kiriting!", 
+            sentErr: "Gapni yozing!", 
+            copySuccess: "✅ Nusxa olindi!",
+            verifyBtn: "✨ Nashr etildi! Muhr olish",
+            praise: "Muvaffaqiyatli!",
+            close: "Yopish",
+            submitBtn: "Nusxa olish va taxtaga o'tish",
+            milestone1: "100 kunlik koreys tili boshlandi! Omad!",
+            milestone5: "5% bo'ldi! Qiziqarli ekanmi?",
+            milestone15: "Har kuni o'qisangiz, yaxshilanadi !",
+            milestone30: "30% ga yetdik! Davom eting!",
+            milestone50: "Yarim yo'l! Omad!",
+            milestone75: "75%! Oz qoldi!",
+            milestone90: "Deyarli 100! Ozgina qoldi!",
+            milestone100: "Tabriklaymiz! Siz uddaladingiz!",
+            completeTitle: "Tabriklaymiz!"
+        },
+        mn: { 
+            alert: "Хэл зүйгээ сонгоно уу! 😊", 
+            support: "<span class='coffee-icon'>☕</span> Таны дэмжлэг бидэнд урам өгдөг!", 
+            stamp: "Сайн байна!", 
+            nameErr: "Нэрээ оруулна уу!", 
+            sentErr: "Өгүүлбэрээ бичнэ үү!", 
+            copySuccess: "✅ Хууллаа!",
+            verifyBtn: "✨ Нийтэллээ! Тамга авах",
+            praise: "Амжилттай!",
+            close: "Хаах",
+            submitBtn: "Хуулаад самбар руу очих",
+            milestone1: "100 өдрийн солонго스 хэл эхэллээ! Амжилт!",
+            milestone5: "5% болло오! Сонирхолтой байна у우?",
+            milestone15: "Өдөр бүр давтвал сайжирна шүү !",
+            milestone30: "30% хүрлээ! Үргэлжлүүлээд хичээгээрэй!",
+            milestone50: "Талда오 орло오! Амжилт!",
+            milestone75: "75%! Одоо жаахан л үлдлээ!",
+            milestone90: "Бараг 100 болло오! Одоохоن!",
+            milestone100: "Баяр хүргэе! Та чадлаа!",
+            completeTitle: "Баяр хүргэе!"
+        }
+    };
+
+    const rawLang = navigator.language.substring(0, 2);
+    let currentLang = translations[rawLang] || translations.en;
+    
+    function updateUIText(langObj) {
+        document.getElementById('support-lang').innerHTML = langObj.support;
+        document.getElementById('stamp-text').innerText = langObj.stamp;
+        document.getElementById('verify-btn-text').innerText = langObj.verifyBtn;
+        document.getElementById('close-btn-text').innerText = langObj.close;
+        document.getElementById('submit-btn-text').innerText = langObj.submitBtn;
+    }
+    updateUIText(currentLang);
+
+    const grammarNames = ["N은/는", "N이/가", "N을/를", "N의", "N에", "N에서", "N도", "N만", "N한테/에게", "N(이)랑", "N하고", "N(이)나", "N부터 까지", "N으로/로", "V-고", "V-거나", "V-지만", "V-는데/ㄴ데", "V-아/어서", "V-니까", "V-고 싶다", "V-아/어 주다", "V-아/어 보다", "V-아/어 본 적이 있다", "V-고 있다", "V-기 전에", "V-(으)ㄴ 후에", "V-(으)러 가다", "V-(으)려고", "V-(으)면", "V-아/어지다", "V-게 되다", "V-아/어 있다", "V-아/어야 되다/하다", "V-(으)ㄹ 수 있다/없다", "V-(으)ㄹ 줄 알다", "V-(으)ㄹ까요?", "V-(으)ㅂ시다", "V-(으)ㄹ래요", "V-지 마세요", "V-(으)세요", "V-(으)면서", "V-기 때문에", "V-기 시작하다", "V-기 위해서", "V-기로 하다", "V-은/는/을 것 같다", "V-(으)려고 하다", "V-나 보다", "V-(으)ㄴ/는 편이다", "V-(으)ㄹ 뻔하다", "V-기 쉽다/어렵다", "V-아/어 보이다", "V-아/어 놓다/두다", "V-아/어 버리다", "V-(으)ㄹ 때", "V-기 마련이다", "V-(으)ㄴ/는 줄 알았다", "V-(으)ㄹ지도 모르다", "V-나마나", "V-자마자", "V-느라", "V-는 바람에", "V-덕분에", "V-기 위해서", "V-느느 차라리", "V-다시피", "V-다시피 하다", "V-다 못해", "V-는 법이다", "V-는 둥 마는 둥", "V-다시피", "V-더군요", "V-더라고요", "V-다 보니", "V-다 보면", "V-다가는", "V-다가는", "V-다가", "N을/를 바탕으로", "N을/를 비롯해서", "N에 의하면", "N치고", "N조차", "N뿐만 아니라", "N에 불과하다", "N에 비해서", "N에 반해", "N에 달하다", "V-기 일쑤이다", "V-기 나름이다", "V-곤 하다", "V-는 척하다", "V-(으)ㄹ 따름이다", "V-(으)ㄹ 리가 없다", "V-(으)ㄹ 뿐이다", "V-(으)ㄹ 만하다", "V-(으)ㄹ 정도로", "V-(으)ㄹ 겸", "N을/를 고려하다"];
+
+    let completedDays = JSON.parse(localStorage.getItem('completedDays')) || [];
+    const grapeGrid = document.getElementById('grape-grid');
+    
+    function renderGrapes() {
+        grapeGrid.innerHTML = '';
+        for (let i = 0; i < 100; i++) {
+            const grape = document.createElement('div');
+            const isCompleted = completedDays.includes(i.toString());
+            grape.className = 'grape' + (isCompleted ? ' filled' : '');
+            grape.innerText = i + 1;
+            grapeGrid.appendChild(grape);
+        }
+        document.getElementById('progress-text').innerText = `${completedDays.length} / 100`;
+        const progressBar = document.getElementById('progress-bar');
+        if (progressBar) progressBar.style.width = `${completedDays.length}%`;
+    }
+    renderGrapes();
+
+    const select = document.getElementById('grammarSelect');
+    grammarNames.forEach((name, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.text = `Day ${index + 1}: ${name}`;
+        select.appendChild(option);
+    });
+
+    function toggleGrapeBoard() {
+        const board = document.getElementById('grape-section');
+        const isHidden = getComputedStyle(board).display === 'none';
+        board.style.display = isHidden ? 'block' : 'none';
+        if(isHidden) board.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function updateVideo() {
+        const val = select.value;
+        const player = document.getElementById('mainPlayer');
+        if (val === "review") {
+            player.src = "https://www.youtube.com/embed?listType=playlist&list=PLdNKi3Jkq1kmbPOQuexdPMYDxvrkfnWha&index=1";
+        } else if (val === "-1") {
+            player.src = "https://www.youtube.com/embed/videoseries?list=PLdNKi3Jkq1kmbPOQuexdPMYDxvrkfnWha";
+        } else {
+            const youtubeIndex = parseInt(val) + 2;
+            player.src = `https://www.youtube.com/embed?listType=playlist&list=PLdNKi3Jkq1kmbPOQuexdPMYDxvrkfnWha&index=${youtubeIndex}`;
+        }
+    }
+
+    function showAlert(msg) {
+        const alertBox = document.getElementById('custom-alert');
+        alertBox.innerText = msg;
+        alertBox.style.display = 'block';
+        setTimeout(() => { alertBox.style.display = 'none'; }, 4000);
+    }
+
+    function copyAndGuide() {
+        const val = select.value;
+        const name = document.getElementById('studentName').value.trim();
+        const text = document.getElementById('sentence').value.trim();
+        if(val === "-1" || val === "review") { showAlert(currentLang.alert); return; }
+        if(!name || !text) { showAlert("Name & Sentence please!"); return; }
+        const dayNum = parseInt(val) + 1;
+        const finalFormat = `[Day ${dayNum}. ${grammarNames[val]}][${name}] ${text}`;
+        const textArea = document.createElement("textarea");
+        textArea.value = finalFormat;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try { 
+            document.execCommand('copy'); 
+            showAlert(currentLang.copySuccess);
+            setTimeout(() => { document.getElementById('feedback-area').scrollIntoView({ behavior: 'smooth' }); }, 500);
+        } catch (err) { console.error('Copy failed', err); } 
+        finally { document.body.removeChild(textArea); }
+    }
+
+    function triggerConfetti() {
+        const duration = 5 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 3000 };
+        function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+        const interval = setInterval(function() {
+          const timeLeft = animationEnd - Date.now();
+          if (timeLeft <= 0) return clearInterval(interval);
+          const particleCount = 50 * (timeLeft / duration);
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+        }, 250);
+    }
+
+    function getFancyPinTrophy() {
+        return `
+        <div class="fancy-trophy-container">
+            <svg viewBox="0 0 100 100" class="fancy-trophy-svg">
+                <defs>
+                    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#fff176;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ffa000;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <path d="M22,35 Q10,35 10,45 Q10,55 22,55" fill="none" stroke="#5d4037" stroke-width="7" stroke-linecap="round"/>
+                <path d="M78,35 Q90,35 90,45 Q90,55 78,55" fill="none" stroke="#5d4037" stroke-width="7" stroke-linecap="round"/>
+                <path d="M22,35 Q10,35 10,45 Q10,55 22,55" fill="none" stroke="url(#goldGrad)" stroke-width="3.5"/>
+                <path d="M78,35 Q90,35 90,45 Q90,55 78,55" fill="none" stroke="url(#goldGrad)" stroke-width="3.5"/>
+                <path d="M25,25 L75,25 L70,65 Q50,82 30,65 Z" fill="url(#goldGrad)" stroke="#5d4037" stroke-width="5" stroke-linejoin="round"/>
+                <path d="M40,75 L60,75 L68,88 L32,88 Z" fill="#ffa000" stroke="#5d4037" stroke-width="4"/>
+                <rect x="22" y="88" width="56" height="12" rx="4" fill="#5d4037" stroke="#3e2723" stroke-width="2"/>
+                <path d="M50,38 L54,49 L65,49 L56,55 L60,66 L50,59 L40,66 L44,55 L35,49 L46,49 Z" fill="#fff" opacity="0.95"/>
+                <circle cx="25" cy="25" r="4" fill="#fff"><animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" /></circle>
+                <circle cx="75" cy="35" r="3" fill="#fff"><animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" /></circle>
+            </svg>
+        </div>`;
+    }
+
+    function showMilestoneModal(count, customLang = null) {
+        const langObj = customLang || currentLang;
+        const selectedLangKey = customLang ? document.getElementById('adminLangSelect').value : (translations[rawLang] ? rawLang : 'en');
+        const modalTitle = document.getElementById('stamp-text');
+        const illustContainer = document.getElementById('growth-illustration');
+        
+        modalTitle.innerText = langObj.stamp;
+        illustContainer.innerHTML = ''; 
+
+        if (count === 100) {
+            modalTitle.innerText = langObj.completeTitle;
+            illustContainer.innerHTML = getFancyPinTrophy();
+            if (!customLang) triggerConfetti();
+        } else {
+            let encourageText = "";
+            if (count >= 1 && count < 5) encourageText = langObj.milestone1;
+            else if (count >= 5 && count < 15) encourageText = langObj.milestone5;
+            else if (count >= 15 && count < 30) encourageText = langObj.milestone15;
+            else if (count >= 30 && count < 50) encourageText = langObj.milestone30;
+            else if (count >= 50 && count < 75) encourageText = langObj.milestone50;
+            else if (count >= 75 && count < 90) encourageText = langObj.milestone75;
+            else if (count >= 90 && count < 100) encourageText = langObj.milestone90;
+            else encourageText = langObj.praise;
+
+            const textDiv = document.createElement('div');
+            textDiv.className = 'big-encourage-text';
+            if (selectedLangKey === 'ja') textDiv.classList.add('lang-ja');
+            if (selectedLangKey === 'zh') textDiv.classList.add('lang-zh');
+            textDiv.innerText = encourageText;
+            illustContainer.appendChild(textDiv);
+        }
+        document.getElementById('stamp-overlay').style.display = 'flex';
+    }
+
+    function completeAndStamp() {
+        const val = select.value;
+        if(val === "-1" || val === "review") { showAlert(currentLang.alert); return; }
+        if (!completedDays.includes(val)) {
+            completedDays.push(val);
+            localStorage.setItem('completedDays', JSON.stringify(completedDays));
+            renderGrapes();
+        }
+        showMilestoneModal(completedDays.length);
+    }
+
+    function adminPreview(count) {
+        const selectedLangKey = document.getElementById('adminLangSelect').value;
+        const targetLangObj = translations[selectedLangKey];
+        showMilestoneModal(count, targetLangObj);
+    }
+
+    function closeStamp() { document.getElementById('stamp-overlay').style.display = 'none'; }
+</script>
+</body>
+</html>
